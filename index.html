@@ -464,6 +464,7 @@
         // --- Floating hearts background ---
         const heartsBg = document.getElementById('heartsBg');
         const heartEmojis = ['❤️', '💕', '💗', '💖', '💘', '💝', '🩷', '♥️'];
+        const flowerEmojis = ['🌸', '🌺', '🪷', '🌸', '🌺', '🌸'];
 
         function createFloatingHeart() {
             const heart = document.createElement('span');
@@ -478,10 +479,25 @@
             setTimeout(() => heart.remove(), 16000);
         }
 
+        function createFloatingFlower() {
+            const flower = document.createElement('span');
+            flower.className = 'floating-heart';
+            flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+            flower.style.left = Math.random() * 100 + '%';
+            flower.style.fontSize = (20 + Math.random() * 25) + 'px';
+            flower.style.animationDuration = (7 + Math.random() * 9) + 's';
+            flower.style.animationDelay = Math.random() * 2 + 's';
+            heartsBg.appendChild(flower);
+
+            setTimeout(() => flower.remove(), 18000);
+        }
+
         setInterval(createFloatingHeart, 500);
+        setInterval(createFloatingFlower, 700);
         // Create a few immediately
         for (let i = 0; i < 8; i++) {
             setTimeout(createFloatingHeart, i * 200);
+            setTimeout(createFloatingFlower, i * 300);
         }
 
         // --- "No" button escape logic ---
