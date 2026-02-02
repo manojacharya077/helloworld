@@ -383,11 +383,7 @@
     <button class="music-btn" id="musicBtn" title="Play Music">&#9835;</button>
 
     <!-- Hidden YouTube player -->
-    <div id="ytPlayer" style="position:fixed;top:-9999px;left:-9999px;">
-        <iframe id="youtubeFrame" width="1" height="1"
-            src="https://www.youtube.com/embed/2Vv-BfVoq4g?enablejsapi=1&autoplay=0&loop=1&playlist=2Vv-BfVoq4g"
-            allow="autoplay" frameborder="0"></iframe>
-    </div>
+    <div id="ytPlayer" style="position:fixed;top:-9999px;left:-9999px;"></div>
 
     <!-- Floating hearts background -->
     <div class="hearts-bg" id="heartsBg"></div>
@@ -434,26 +430,66 @@
     </div>
 
     <script>
-        // --- Music controls ---
+        // --- Music controls (YouTube IFrame API) ---
         let musicPlaying = false;
+        let player = null;
         const musicBtn = document.getElementById('musicBtn');
-        const youtubeFrame = document.getElementById('youtubeFrame');
+
+        // Load YouTube IFrame API
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('ytPlayer', {
+                width: '1',
+                height: '1',
+                videoId: 'YNccBS2btjU',
+                playerVars: {
+                    autoplay: 0,
+                    loop: 1,
+                    playlist: 'YNccBS2btjU',
+                    start: 23
+                },
+                events: {
+                    onReady: function () {
+                        // Try to autoplay on first user interaction
+                        document.addEventListener('click', startMusicOnce, { once: true });
+                        document.addEventListener('touchstart', startMusicOnce, { once: true });
+                    }
+                }
+            });
+        }
+        // Expose to global scope for YouTube API callback
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+        function startMusicOnce() {
+            if (!musicPlaying && player) {
+                playMusic();
+            }
+        }
 
         function playMusic() {
-            youtubeFrame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            musicPlaying = true;
-            musicBtn.innerHTML = '&#9724;';
-            musicBtn.title = 'Pause Music';
+            if (player) {
+                player.seekTo(23, true);
+                player.playVideo();
+                musicPlaying = true;
+                musicBtn.innerHTML = '&#9724;';
+                musicBtn.title = 'Pause Music';
+            }
         }
 
         function pauseMusic() {
-            youtubeFrame.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            musicPlaying = false;
-            musicBtn.innerHTML = '&#9835;';
-            musicBtn.title = 'Play Music';
+            if (player) {
+                player.pauseVideo();
+                musicPlaying = false;
+                musicBtn.innerHTML = '&#9835;';
+                musicBtn.title = 'Play Music';
+            }
         }
 
-        musicBtn.addEventListener('click', () => {
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             if (musicPlaying) {
                 pauseMusic();
             } else {
