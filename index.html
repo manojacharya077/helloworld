@@ -342,6 +342,31 @@
             font-style: italic;
         }
 
+        /* Music button */
+        .music-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(233, 30, 99, 0.8);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
         @media (max-width: 600px) {
             .title { font-size: 1.8rem; }
             .celebration-title { font-size: 2rem; }
@@ -354,6 +379,16 @@
     </style>
 </head>
 <body>
+    <!-- Music button -->
+    <button class="music-btn" id="musicBtn" title="Play Music">&#9835;</button>
+
+    <!-- Hidden YouTube player -->
+    <div id="ytPlayer" style="position:fixed;top:-9999px;left:-9999px;">
+        <iframe id="youtubeFrame" width="1" height="1"
+            src="https://www.youtube.com/embed/2Vv-BfVoq4g?enablejsapi=1&autoplay=0&loop=1&playlist=2Vv-BfVoq4g"
+            allow="autoplay" frameborder="0"></iframe>
+    </div>
+
     <!-- Floating hearts background -->
     <div class="hearts-bg" id="heartsBg"></div>
 
@@ -399,6 +434,33 @@
     </div>
 
     <script>
+        // --- Music controls ---
+        let musicPlaying = false;
+        const musicBtn = document.getElementById('musicBtn');
+        const youtubeFrame = document.getElementById('youtubeFrame');
+
+        function playMusic() {
+            youtubeFrame.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+            musicPlaying = true;
+            musicBtn.innerHTML = '&#9724;';
+            musicBtn.title = 'Pause Music';
+        }
+
+        function pauseMusic() {
+            youtubeFrame.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            musicPlaying = false;
+            musicBtn.innerHTML = '&#9835;';
+            musicBtn.title = 'Play Music';
+        }
+
+        musicBtn.addEventListener('click', () => {
+            if (musicPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        });
+
         // --- Floating hearts background ---
         const heartsBg = document.getElementById('heartsBg');
         const heartEmojis = ['❤️', '💕', '💗', '💖', '💘', '💝', '🩷', '♥️'];
@@ -490,6 +552,11 @@
 
             // Hide the No button
             btnNo.style.display = 'none';
+
+            // Start music
+            if (!musicPlaying) {
+                playMusic();
+            }
 
             // Launch balloons
             launchBalloons();
