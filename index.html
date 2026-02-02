@@ -453,9 +453,15 @@
                 },
                 events: {
                     onReady: function () {
-                        // Try to autoplay on first user interaction
+                        // Try autoplay immediately
+                        player.playVideo();
+                        musicPlaying = true;
+                        musicBtn.innerHTML = '&#9724;';
+                        // Fallback: play on first interaction if autoplay blocked
                         document.addEventListener('click', startMusicOnce, { once: true });
                         document.addEventListener('touchstart', startMusicOnce, { once: true });
+                        document.addEventListener('mousemove', startMusicOnce, { once: true });
+                        document.addEventListener('scroll', startMusicOnce, { once: true });
                     }
                 }
             });
